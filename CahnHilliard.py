@@ -226,9 +226,13 @@ class Sol_CahnHilliard:
         self.D = D
         self.a = a
         self.x = np.linspace(-L/2, L/2, N)
+        self.step = 10
         
         self.sol = None
         self.t = None
+        
+        self.ft_sol = None
+        self.ft_t = None
 
     def compute_sol(self, c0, t):
         """
@@ -244,3 +248,22 @@ class Sol_CahnHilliard:
         self.t = t
         dx = self.x[1] - self.x[0]
         self.sol = integrate(Cahn_Hilliard, c0, t, dx, self.D, self.a)
+
+    def ComputeFT(self):
+        """
+        Compute the average Fourier transform of concentration profiles along x and y
+        at times specified by self.step.
+        """
+        self.ft_t = self.t[0:-1:self.step]
+        sect_x = np.mean(self.sol, axis=1)
+        sect_y = np.mean(self.sol, axis=2)
+        sect = (sect_x[0:-1:self.step] + sect_y[0:-1:self.step])/2
+
+        ft_sol = np.zeros((len(sect), len(self.sol[0])))
+
+        for i in range(0, len(sect)):
+            hat = np.fft.fft(sect[i] - np.mean(sect[i]))
+            psd = np.sqrt(np.real(np.conj(hat) * hat))
+            ft_sol[i] = psd
+
+        self.ft_sol = ft_sol
