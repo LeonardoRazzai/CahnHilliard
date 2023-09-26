@@ -336,6 +336,48 @@ class Sol_CahnHilliard:
         
         self.histo = histo
         
+    def MakeGif_sol(self, file_name = 'cahn_hilliard.gif'):
+        """
+        Create a GIF animation of concentration field evolution.
+
+        Parameters:
+        ----------
+        file_name : str, optional
+            Name of the output GIF file.
+        """
+        N = len(self.x)
+        Nt = len(self.sol)
+        sol_to_plot = self.sol[0:Nt:self.step]
+        t_to_plot = self.t[0:Nt:self.step]
+        
+        fig, ax = plt.subplots(1, 2, figsize=(14, 6))
+
+        ax[0].plot([0, 400], [200, 200], color = 'darkorchid')
+        img = ax[0].imshow(sol_to_plot[0], cmap='inferno')
+        ax[0].set_title(f'Concentration in x-y plane')
+
+        ln2, = ax[1].plot(self.x, sol_to_plot[0][N//2], color='darkorchid')
+        ax[1].plot([np.min(self.x), np.max(self.x)], [1/np.sqrt(3), 1/np.sqrt(3)], '--', color='black', label='Spinodal')
+        ax[1].plot([np.min(self.x), np.max(self.x)], [-1/np.sqrt(3), -1/np.sqrt(3)], '--', color='black')
+        ax[1].set_title('Concentration at y=0', fontdict=title_font)
+        ax[1].set_ylabel('Conc', fontdict=base_font)
+        ax[1].set_xlabel('x (cm)', fontdict=base_font)
+        ax[1].set_ylim(-1, 1)
+        ax[1].set_xlim(self.x[0], self.x[-1])
+        ax[1].legend(loc='upper left')
+
+        fig.suptitle('Time evolution Fourier components, t = 0.0 s', fontdict=title_figure)
+
+        def update(i):
+            img.set_data(sol_to_plot[i])
+            ln2.set_data(self.x, sol_to_plot[i][N//2])
+            fig.suptitle(f'Time evolution Fourier components, t = {t_to_plot[i]:.1f} s', fontdict=title_figure)
+
+
+
+        ani = FuncAnimation(fig, update, frames = len(sol_to_plot)-1)
+        ani.save(file_name, writer='pillow', fps= len(sol_to_plot)/20)
+        
     def MakeGif_FT(self, file_name = 'ft_vs_time.gif'):
         """
         Create a GIF animation of Fourier components over time.
