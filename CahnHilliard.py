@@ -1,5 +1,34 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from scipy.signal import convolve2d
+
+SMALL_SIZE = 11
+MEDIUM_SIZE = 14
+BIGGER_SIZE = 20
+
+plt.rc('font', size=MEDIUM_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=SMALL_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+
+base_font = {'family': 'serif',
+        'color':  'black',
+        'size': SMALL_SIZE,
+        }
+
+title_font = {'family': 'serif',
+        'color':  'black',
+        'size': MEDIUM_SIZE,
+        }
+
+title_figure = {'family': 'serif',
+        'color':  'darkred',
+        'size': BIGGER_SIZE,
+        'weight' : 'bold'
+        }
 
 LAP2 = np.array(
     [[0, 1, 0],
@@ -306,3 +335,50 @@ class Sol_CahnHilliard:
             histo.append(np.histogram(conc_array, N))
         
         self.histo = histo
+        
+    def MakeGif_FT(self, file_name = 'ft_vs_time.gif'):
+        """
+        Create a GIF animation of Fourier components over time.
+
+        Parameters:
+        ----------
+        file_name : str, optional
+            Name of the output GIF file.
+        """
+        Nt_ft = len(self.ft_t)
+        chosen_time = self.ft_sol[Nt_ft//10]
+        index_max = np.argmax(chosen_time)
+        ft_max = self.ft_sol[:, index_max]
+
+        fig, ax = plt.subplots(1, 2, figsize=(14, 5))
+        ax[0].set_ylim(0, np.max(self.ft_sol[:])+1)
+        ax[1].set_ylim(0, np.max(ft_max)+1)
+
+        N = len(self.x)
+        dx = self.x[1] - self.x[0]
+        k = np.fft.fftfreq(N, dx) * 2*np.pi
+
+        ln1, = ax[0].plot(k[:N//2], self.ft_sol[0][:N//2])
+        ln2, = ax[0].plot([k[index_max]], [ft_max[0]], 'o', ms=5, color='black')
+
+        ax[0].axvline(1/(np.sqrt(self.a)), ls='--',color='red', label='Critical line\n'+r'1/$\sqrt{a}$')
+        ax[0].set_xlabel('k', fontdict=base_font)
+        ax[0].set_ylabel('A(k, t)/A(k, 0)', fontdict=base_font)
+        ax[0].legend()
+        
+        ax[1].plot(self.ft_t, ft_max)
+        ln3, = ax[1].plot([self.t[0]], [ft_max[0]], 'o', ms=5, color='black')
+        ax[1].set_xlabel('t (s)', fontdict=base_font)
+        ax[1].set_ylabel(f'Component k = {k[index_max]:.1f}', fontdict=base_font)
+
+        fig.suptitle('Time evolution Fourier components, t = 0.0 s', fontdict=title_figure)
+
+        def update(i):
+            ln1.set_data(k[:N//2], self.ft_sol[i][:N//2])
+            ln2.set_data([k[index_max]], [ft_max[i]])
+            ln3.set_data([self.ft_t[i]], [ft_max[i]])
+            fig.suptitle(f'Time evolution Fourier components, t = {self.ft_t[i]:.1f} s', fontdict=title_figure)
+
+
+        ani = FuncAnimation(fig, update, frames = len(self.ft_sol)-1)
+        ani.save(file_name, writer='pillow', fps= len(self.ft_sol)/20)
