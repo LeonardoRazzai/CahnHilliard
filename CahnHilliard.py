@@ -199,11 +199,25 @@ class Sol_CahnHilliard:
         3D NumPy array representing the concentration field over time.
     t : np.ndarray
         1D NumPy array representing time steps.
+    step : int
+        Step size for data analysis and visualization. Default value is 10.
+    ft_sol : np.ndarray
+        2D NumPy array representing the Fourier transformed concentration profiles.
+    ft_t : np.ndarray
+        1D NumPy array representing time steps for Fourier analysis.
+    histo : list
+        List of histograms representing concentration distributions over time.
 
     Methods:
     --------
     compute_sol(c0, t)
         Simulate the evolution of the concentration field.
+    ComputeFT()
+        Compute the Fourier transform of concentration profiles.
+    Compute_histo()
+        Compute concentration histograms over time.
+    set_step(step)
+        Set the step size for data analysis and visualization.
     """
     
     def __init__(self, L, N, D, a) -> None:
@@ -233,6 +247,7 @@ class Sol_CahnHilliard:
         
         self.ft_sol = None
         self.ft_t = None
+        self.histo = None
 
     def compute_sol(self, c0, t):
         """
