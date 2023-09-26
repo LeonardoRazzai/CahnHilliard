@@ -248,6 +248,17 @@ class Sol_CahnHilliard:
         self.t = t
         dx = self.x[1] - self.x[0]
         self.sol = integrate(Cahn_Hilliard, c0, t, dx, self.D, self.a)
+    
+    def set_step(self, step: int):
+        """
+        Set the step size for data analysis and visualization.
+
+        Parameters:
+        ----------
+        step : int
+            New step size.
+        """
+        self.step = step
 
     def ComputeFT(self):
         """
