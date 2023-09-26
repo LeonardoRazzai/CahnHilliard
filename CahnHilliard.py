@@ -424,3 +424,72 @@ class Sol_CahnHilliard:
 
         ani = FuncAnimation(fig, update, frames = len(self.ft_sol)-1)
         ani.save(file_name, writer='pillow', fps= len(self.ft_sol)/20)
+        
+    def MakeGif_tot(self, file_name = 'cahn_hilliard.gif'):
+        """
+        Create a GIF animation of concentration and Fourier analysis over time.
+
+        Parameters:
+        ----------
+        file_name : str, optional
+            Name of the output GIF file.
+        """
+        N = len(self.x)
+        Nt = len(self.sol)
+        sol_to_plot = self.sol[0:Nt:self.step]
+        sol_to_plot.shape
+
+        fig = plt.figure(figsize=(15, 7))
+        grid = plt.GridSpec(4, 4, hspace=0.8, wspace=0.3)
+
+        # image
+        img_ax = fig.add_subplot(grid[:, :2])
+        img_ax.set_xticks([])
+        img_ax.set_yticks([])
+        img = img_ax.imshow(sol_to_plot[0], cmap='inferno')
+        img_ax.set_title(f'Concentration in x-y plane', fontdict=title_font)
+
+        # conc_x
+        concx_ax = fig.add_subplot(grid[:2, 2:])
+        histo = self.histo[0]
+        bins = histo[1]
+        counts = histo[0]
+        ln1, = concx_ax.plot(bins[:-1], counts / np.max(counts), color='darkorchid')
+        concx_ax.axvline(1/np.sqrt(3), ls='--', color='black', label='Spinodal')
+        concx_ax.axvline(-1/np.sqrt(3), ls='--', color='black')
+        concx_ax.set_title('Concentration distribution', fontdict=title_font)
+        concx_ax.set_ylabel('counts', fontdict=base_font)
+        concx_ax.set_xlabel('Conc', fontdict=base_font)
+        concx_ax.set_xlim(-1.2, 1.2)
+        concx_ax.set_ylim(0.05, 1.1)
+        concx_ax.legend(loc='upper left')
+
+        # ft_conc_x
+        ft_concx_ax = fig.add_subplot(grid[2:, 2:])
+        ft_concx_ax.set_ylim(0, np.max(self.ft_sol[:])+1)
+
+        dx = self.x[1] - self.x[0]
+        k = np.fft.fftfreq(N, dx) * 2*np.pi
+
+        ft_ln1, = ft_concx_ax.plot(k[:N//2], self.ft_sol[0][:N//2])
+
+        ft_concx_ax.axvline(1/(np.sqrt(self.a)), ls='--',color='red', label='Critical line\n'+r'1/$\sqrt{a}$')
+        ft_concx_ax.set_xlabel(r'k (cm$^{-1}$)', fontdict=base_font)
+        ft_concx_ax.set_ylabel('A(k, t)/A(k, 0)', fontdict=base_font)
+        ft_concx_ax.set_title('FT of concentration profile', fontdict=title_font)
+        ft_concx_ax.legend()
+
+        fig.suptitle('Time evolution of concentration, t = 0.0 s', fontdict=title_figure)
+
+        def update(i):
+            img.set_data(sol_to_plot[i])
+            histo = self.histo[i]
+            bins = histo[1]
+            counts = histo[0]
+            ln1.set_data(bins[:-1], counts / np.max(counts))
+            ft_ln1.set_data(k[:N//2], self.ft_sol[i][:N//2])
+            fig.suptitle(f'Time evolution of concentration, t = {self.ft_t[i]:.1f} s', fontdict=title_figure)
+
+
+        ani = FuncAnimation(fig, update, frames = len(sol_to_plot)-1)
+        ani.save(file_name, writer='pillow', fps= len(sol_to_plot)/20)
