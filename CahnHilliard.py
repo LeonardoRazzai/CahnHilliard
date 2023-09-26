@@ -99,3 +99,148 @@ def Cahn_Hilliard(u, t: float, dx: float, D: float, a: float):
     >>> updated_concentration = Cahn_Hilliard(initial_concentration, t, dx, D, a)
     """
     return (D / dx**2) * laplacian2(np.power(u, 3) - u - (a / dx**2) * laplacian2(u))
+  
+  
+def integrate(func, u0, t, *args):
+    """
+    Numerically integrate a given differential equation over time.
+
+    This function performs numerical integration of a differential equation
+    defined by the function 'func' using the Euler method. It computes the
+    solution at discrete time steps specified by the array 't'.
+
+    Parameters:
+    ----------
+    func : callable
+        The function representing the differential equation to be integrated.
+        It should accept the following arguments:
+        - u : np.ndarray
+            The current state of the system.
+        - t : float
+            The current time.
+        - *args : tuple
+            Additional arguments to be passed to 'func'.
+        The function should return the rate of change of 'u' at the given time 't'.
+    u0 : np.ndarray
+        A 2D NumPy array representing the initial state of the system.
+    t : np.ndarray
+        A 1D NumPy array containing the discrete time steps at which to compute
+        the solution.
+    *args : tuple, optional
+        Additional arguments to be passed to 'func'.
+
+    Returns:
+    -------
+    np.ndarray
+        A 3D NumPy array representing the solution of the differential equation
+        over time. The first dimension corresponds to time steps, and the shape
+        of each step matches the shape of 'u0'.
+
+    Notes:
+    ------
+    This function uses the Euler method for numerical integration, which may
+    introduce numerical errors, especially for stiff differential equations.
+    It is recommended to use more advanced integration methods for accuracy
+    when necessary.
+
+    Example:
+    --------
+    >>> import numpy as np
+    >>> def Cahn_Hilliard(u, t, dx, D, a):
+    ...     # Define the Cahn-Hilliard equation here.
+    ...     return (D / dx**2) * laplacian2(u**3 - u - (a / dx**2) * laplacian2(u))
+    >>> initial_concentration = np.random.rand(100, 100)
+    >>> time_steps = np.linspace(0.0, 1.0, 10)
+    >>> dx = 0.1
+    >>> D = 0.1
+    >>> a = 1.0
+    >>> solution = integrate(Cahn_Hilliard, initial_concentration, time_steps, dx, D, a)
+    """
+    Nt = len(t)
+    dt = np.max(t) / Nt
+
+    u = np.zeros((Nt, u0.shape[0], u0.shape[1]))
+    u[0] = u0
+    for i in range(1, Nt):
+        u[i] = u[i-1] + func(u[i-1], t, *args) * dt
+    
+    return u
+  
+  
+class Sol_CahnHilliard:
+    
+    """
+    Class for simulating and analyzing the Cahn-Hilliard equation solutions.
+
+    This class provides methods for simulating and analyzing the solutions of the
+    Cahn-Hilliard equation, a partial differential equation used to model phase
+    separation in materials science and physics.
+
+    Parameters:
+    ----------
+    L : float
+        Length of the spatial domain.
+    N : int
+        Number of spatial grid points.
+    D : float
+        Diffusion coefficient controlling the rate of phase separation.
+    a : float
+        Parameter affecting the interfacial energy between phases.
+
+    Attributes:
+    -----------
+    D : float
+        Diffusion coefficient.
+    a : float
+        Interfacial energy parameter.
+    x : np.ndarray
+        1D NumPy array representing the spatial grid.
+    sol : np.ndarray
+        3D NumPy array representing the concentration field over time.
+    t : np.ndarray
+        1D NumPy array representing time steps.
+
+    Methods:
+    --------
+    compute_sol(c0, t)
+        Simulate the evolution of the concentration field.
+    """
+    
+    def __init__(self, L, N, D, a) -> None:
+
+        """
+        Initialize a Sol_CahnHilliard instance with specified parameters.
+
+        Parameters:
+        ----------
+        L : float
+            Length of the spatial domain.
+        N : int
+            Number of spatial grid points.
+        D : float
+            Diffusion coefficient controlling the rate of phase separation.
+        a : float
+            Parameter affecting the interfacial energy between phases
+        """
+        
+        self.D = D
+        self.a = a
+        self.x = np.linspace(-L/2, L/2, N)
+        
+        self.sol = None
+        self.t = None
+
+    def compute_sol(self, c0, t):
+        """
+        Simulate the evolution of the concentration field.
+
+        Parameters:
+        ----------
+        c0 : np.ndarray
+            Initial concentration field.
+        t : np.ndarray
+            1D NumPy array representing time steps.
+        """
+        self.t = t
+        dx = self.x[1] - self.x[0]
+        self.sol = integrate(Cahn_Hilliard, c0, t, dx, self.D, self.a)
