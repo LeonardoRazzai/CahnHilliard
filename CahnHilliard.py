@@ -278,3 +278,16 @@ class Sol_CahnHilliard:
             ft_sol[i] = psd
 
         self.ft_sol = ft_sol
+    
+    def Compute_histo(self):
+        """
+        Compute histograms of concentration at times specified by self.step.
+        """
+        N = len(self.sol[0])
+        Nt = len(self.sol)
+        histo = []
+        for i in range(0, Nt, self.step):
+            conc_array = np.reshape(self.sol[i], (N**2))
+            histo.append(np.histogram(conc_array, N))
+        
+        self.histo = histo
