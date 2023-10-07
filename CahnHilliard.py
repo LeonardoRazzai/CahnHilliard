@@ -354,7 +354,7 @@ class Sol_CahnHilliard:
 
         ax[0].plot([0, 400], [200, 200], color = 'darkorchid')
         img = ax[0].imshow(sol_to_plot[0], cmap='inferno')
-        ax[0].set_title(f'Concentration in x-y plane')
+        ax[0].set_title(f'Concentration in x-y plane', fontdict=title_font)
 
         ln2, = ax[1].plot(self.x, sol_to_plot[0][N//2], color='darkorchid')
         ax[1].plot([np.min(self.x), np.max(self.x)], [1/np.sqrt(3), 1/np.sqrt(3)], '--', color='black', label='Spinodal')
