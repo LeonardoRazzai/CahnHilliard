@@ -437,7 +437,7 @@ class Sol_CahnHilliard:
         ani = FuncAnimation(fig, update, frames = len(self.ft_sol)-1)
         ani.save(file_name, writer='pillow', fps= len(self.ft_sol)/tmax)
         
-    def MakeGif_tot(self, file_name = 'cahn_hilliard.gif'):
+    def MakeGif_tot(self, file_name = 'cahn_hilliard_tot.gif'):
         """
         Create a GIF animation of concentration and Fourier analysis over time.
 
