@@ -418,12 +418,14 @@ class Sol_CahnHilliard:
         ax[0].axvline(1/(np.sqrt(self.a)), ls='--',color='red', label='Critical line\n'+r'1/$\sqrt{a}$')
         ax[0].set_xlabel('k', fontdict=base_font)
         ax[0].set_ylabel('A(k, t)/A(k, 0)', fontdict=base_font)
+        ax[0].set_title('Fourier spectrum', fontdict=title_font)
         ax[0].legend()
         
         ax[1].plot(self.ft_t, ft_max)
         ln3, = ax[1].plot([self.t[0]], [ft_max[0]], 'o', ms=5, color='black')
         ax[1].set_xlabel('t (s)', fontdict=base_font)
         ax[1].set_ylabel(f'Component k = {k[index_max]:.1f}', fontdict=base_font)
+        ax[1].set_title('Fastest growing Fourier component', fontdict=title_font)
 
         fig.suptitle('Time evolution Fourier components, t = 0.0 s', fontdict=title_figure)
 
