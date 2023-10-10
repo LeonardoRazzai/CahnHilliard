@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from scipy.signal import convolve2d
+from tqdm import tqdm
 
 SMALL_SIZE = 11
 MEDIUM_SIZE = 14
@@ -190,8 +191,12 @@ def integrate(func, u0, t, *args):
 
     u = np.zeros((Nt, u0.shape[0], u0.shape[1]))
     u[0] = u0
-    for i in range(1, Nt):
-        u[i] = u[i-1] + func(u[i-1], t, *args) * dt
+    barstep = 1
+    with tqdm(total=Nt) as pbar:
+        for i in range(1, Nt):
+            u[i] = u[i-1] + func(u[i-1], t, *args) * dt
+            pbar.update(barstep)
+        pbar.close()
     
     return u
   
@@ -291,6 +296,7 @@ class Sol_CahnHilliard:
         """
         self.t = t
         dx = self.x[1] - self.x[0]
+        print('Computing solution:')
         self.sol = integrate(Cahn_Hilliard, c0, t, dx, self.D, self.a)
     
     def set_step(self, step: int):
@@ -316,11 +322,14 @@ class Sol_CahnHilliard:
 
         ft_sol = np.zeros((len(sect), len(self.sol[0])))
 
-        for i in range(0, len(sect)):
-            hat = np.fft.fft(sect[i] - np.mean(sect[i]))
-            psd = np.sqrt(np.real(np.conj(hat) * hat))
-            ft_sol[i] = psd
-
+        print('Computing FT:')
+        with tqdm(total=len(sect)) as pbar:
+            for i in range(0, len(sect)):
+                hat = np.fft.fft(sect[i] - np.mean(sect[i]))
+                psd = np.sqrt(np.real(np.conj(hat) * hat))
+                ft_sol[i] = psd
+                pbar.update(1)
+            pbar.close()
         self.ft_sol = ft_sol
     
     def Compute_histo(self):
@@ -330,10 +339,13 @@ class Sol_CahnHilliard:
         N = len(self.sol[0])
         Nt = len(self.sol)
         histo = []
-        for i in range(0, Nt, self.step):
-            conc_array = np.reshape(self.sol[i], (N**2))
-            histo.append(np.histogram(conc_array, N))
-        
+        print('Computing histogram:')
+        with tqdm(total=Nt//self.step) as pbar:
+            for i in range(0, Nt, self.step):
+                conc_array = np.reshape(self.sol[i], (N**2))
+                histo.append(np.histogram(conc_array, N))
+                pbar.update(1)
+            pbar.close()
         self.histo = histo
         
     def MakeGif_sol(self, file_name = 'cahn_hilliard.gif'):
@@ -374,9 +386,9 @@ class Sol_CahnHilliard:
             fig.suptitle(f'Time evolution Fourier components, t = {t_to_plot[i]:.1f} s', fontdict=title_figure)
 
 
-
+        tmax = self.t[-1]
         ani = FuncAnimation(fig, update, frames = len(sol_to_plot)-1)
-        ani.save(file_name, writer='pillow', fps= len(sol_to_plot)/20)
+        ani.save(file_name, writer='pillow', fps= len(sol_to_plot)/tmax)
         
     def MakeGif_FT(self, file_name = 'ft_vs_time.gif'):
         """
@@ -421,9 +433,9 @@ class Sol_CahnHilliard:
             ln3.set_data([self.ft_t[i]], [ft_max[i]])
             fig.suptitle(f'Time evolution Fourier components, t = {self.ft_t[i]:.1f} s', fontdict=title_figure)
 
-
+        tmax = self.t[-1]
         ani = FuncAnimation(fig, update, frames = len(self.ft_sol)-1)
-        ani.save(file_name, writer='pillow', fps= len(self.ft_sol)/20)
+        ani.save(file_name, writer='pillow', fps= len(self.ft_sol)/tmax)
         
     def MakeGif_tot(self, file_name = 'cahn_hilliard.gif'):
         """
@@ -490,6 +502,6 @@ class Sol_CahnHilliard:
             ft_ln1.set_data(k[:N//2], self.ft_sol[i][:N//2])
             fig.suptitle(f'Time evolution of concentration, t = {self.ft_t[i]:.1f} s', fontdict=title_figure)
 
-
+        tmax = self.t[-1]
         ani = FuncAnimation(fig, update, frames = len(sol_to_plot)-1)
-        ani.save(file_name, writer='pillow', fps= len(sol_to_plot)/20)
+        ani.save(file_name, writer='pillow', fps= len(sol_to_plot)/tmax)
