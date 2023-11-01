@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from CahnHilliard import Sol_CahnHilliard  # Replace 'your_module' with the actual module name
+from CahnHilliard import Sol_CahnHilliard
 
 class TestSolCahnHilliard(unittest.TestCase):
 

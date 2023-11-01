@@ -11,7 +11,7 @@ def test_integrate_shape_match():
     args = (0.1, 0.01, 0.01)  # Replace with the desired values for dx, D and a
 
     # Call the integrate function
-    result = integrate(Cahn_Hilliard, u0, t, *args)  # Replace 'integrate_func' with your specific integration function
+    result = integrate(Cahn_Hilliard, u0, t, *args)
 
     # Check if the shape of the result matches the shape of the initial condition
     assert result.shape == (len(t),) + shape, "Test integrate_shape_match failed: Output shape does not match input shape."
