@@ -1,4 +1,7 @@
 import numpy as np
+import sys
+sys.path.append('./')
+sys.path.append('../')
 from CahnHilliard import integrate, Cahn_Hilliard
 
 def test_integrate_shape_match():

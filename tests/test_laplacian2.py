@@ -1,4 +1,7 @@
 import numpy as np
+import sys
+sys.path.append('./')
+sys.path.append('../')
 from CahnHilliard import laplacian2
 
 def test_laplacian2_shapes():

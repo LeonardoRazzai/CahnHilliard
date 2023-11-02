@@ -1,5 +1,8 @@
 import unittest
 import numpy as np
+import sys
+sys.path.append('./')
+sys.path.append('../')
 from CahnHilliard import Sol_CahnHilliard
 
 class TestComputeFT(unittest.TestCase):

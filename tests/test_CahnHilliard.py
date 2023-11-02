@@ -1,4 +1,7 @@
 import numpy as np
+import sys
+sys.path.append('./')
+sys.path.append('../')
 from CahnHilliard import Cahn_Hilliard
 
 def test_Cahn_Hilliard_shapes():
