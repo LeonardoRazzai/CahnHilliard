@@ -19,13 +19,21 @@ conc0 = conc0 + amp * np.random.randn(N, N) # initial concentration
 
 print(f'Average concentration: {np.mean(conc0):2f}\n')
 
-tmax = 10
-Nt = 1000
+tmax = 4.5
+Nt = 500
 time = np.linspace(0, tmax, Nt)
 
 CH_system = Sol_CahnHilliard(L, N, D, a)
+# Simulate the time evolution of the concentration field
 CH_system.compute_sol(conc0, time)
+# Set the step size for data analysis and visualization
+CH_system.set_step(10)
 
+# Compute the average Fourier transform of concentration profiles
 CH_system.ComputeFT()
+# Compute concentration histograms over time
 CH_system.Compute_histo()
-CH_system.MakeGif_FT()
+# Create GIF animations
+CH_system.MakeGif_sol(file_name='cahn_hilliard.gif')
+CH_system.MakeGif_FT(filename='ft_vs_time.gif')
+CH_system.MakeGif_tot(file_name='cahn_hilliard_tot.gif')
