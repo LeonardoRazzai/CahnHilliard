@@ -245,13 +245,19 @@ class Sol_CahnHilliard:
     Methods:
     --------
     compute_sol(c0, t)
-        Simulate the evolution of the concentration field.
+        Simulate the time evolution of the concentration field with initial condition c0.
     ComputeFT()
-        Compute the Fourier transform of concentration profiles.
+        Compute the average Fourier transform of concentration profiles along x and y.
     Compute_histo()
         Compute concentration histograms over time.
     set_step(step)
         Set the step size for data analysis and visualization.
+    MakeGif_sol(file_name = 'cahn_hilliard.gif'):
+        Create a GIF animation of concentration field evolution.
+    MakeGif_FT(file_name = 'ft_vs_time.gif'):
+        Create a GIF animation of Fourier components over time.
+    MakeGif_tot(file_name = 'cahn_hilliard_tot.gif'):
+        Create a GIF animation of concentration field, Fourier components and histogram over time.
     """
     
     def __init__(self, L, N, D, a) -> None:
@@ -330,7 +336,7 @@ class Sol_CahnHilliard:
                 ft_sol[i] = psd
                 pbar.update(1)
             pbar.close()
-        self.ft_sol = ft_sol
+        self.ft_sol = ft_sol / (ft_sol[0] + 0.000001)
     
     def Compute_histo(self):
         """
@@ -399,18 +405,17 @@ class Sol_CahnHilliard:
         file_name : str, optional
             Name of the output GIF file.
         """
-        Nt_ft = len(self.ft_t)
-        chosen_time = self.ft_sol[Nt_ft//10]
-        index_max = np.argmax(chosen_time)
+        N = len(self.x)
+        k = np.fft.fftfreq(N, dx) * 2*np.pi
+        indexes = np.arange(0, len(self.ft_sol))
+        index_max = indexes[self.k < 1/np.sqrt(self.a)]
         ft_max = self.ft_sol[:, index_max]
 
         fig, ax = plt.subplots(1, 2, figsize=(14, 5))
-        ax[0].set_ylim(0, np.max(self.ft_sol[:])+1)
-        ax[1].set_ylim(0, np.max(ft_max)+1)
+        ax[0].set_ylim(0, np.max(self.ft_sol[:])+0.5)
+        ax[1].set_ylim(0, np.max(ft_max)+0.5)
 
-        N = len(self.x)
         dx = self.x[1] - self.x[0]
-        k = np.fft.fftfreq(N, dx) * 2*np.pi
 
         ln1, = ax[0].plot(k[:N//2], self.ft_sol[0][:N//2])
         ln2, = ax[0].plot([k[index_max]], [ft_max[0]], 'o', ms=5, color='black')
