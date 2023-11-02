@@ -17,3 +17,5 @@ def test_Cahn_Hilliard_shapes():
 
     # Check if the shape of the result matches the shape of the input
     assert result.shape == shape, "Test shape_match failed: Output shape does not match input shape."
+    # Check if input zeros give output zeros
+    np.testing.assert_array_almost_equal(u, result, decimal=5), "Test result values failed: Input with all zeros doesn't give output with all zeros."
