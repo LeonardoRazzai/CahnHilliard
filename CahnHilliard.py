@@ -176,25 +176,27 @@ def integrate(func, u0, t, *args):
     Example:
     --------
     >>> import numpy as np
-    >>> def Cahn_Hilliard(u, t, dx, D, a):
-    ...     # Define the Cahn-Hilliard equation here.
-    ...     return (D / dx**2) * laplacian2(u**3 - u - (a / dx**2) * laplacian2(u))
-    >>> initial_concentration = np.random.rand(100, 100)
-    >>> time_steps = np.linspace(0.0, 1.0, 10)
-    >>> dx = 0.1
-    >>> D = 0.1
-    >>> a = 1.0
-    >>> solution = integrate(Cahn_Hilliard, initial_concentration, time_steps, dx, D, a)
+    >>> def harmonic_oscillator(u, t, omega):
+    ...     # Define the harmonic oscillator equation.
+    ...     # u[0] represents the position, u[1] represents the velocity.
+    ...     return np.array([u[1], -omega**2 * u[0]])
+    
+    >>> initial_conditions = np.array([1.0, 0.0])  # Initial position and velocity
+    >>> time_steps = np.linspace(0.0, 1.0, 100)
+    >>> omega = 1.0
+    >>> solution = integrate(harmonic_oscillator, initial_conditions, time_steps, omega)
     """
+    
     Nt = len(t)
     dt = np.max(t) / Nt
 
-    u = np.zeros((Nt, u0.shape[0], u0.shape[1]))
+    u = np.zeros((Nt, *u0.shape))
+    
     u[0] = u0
     barstep = 1
     with tqdm(total=Nt) as pbar:
         for i in range(1, Nt):
-            u[i] = u[i-1] + func(u[i-1], t, *args) * dt
+            u[i] = u[i-1] + func(u[i-1], t[i-1], *args) * dt
             pbar.update(barstep)
         pbar.close()
     
@@ -302,7 +304,6 @@ class Sol_CahnHilliard:
         """
         self.t = t
         dx = self.x[1] - self.x[0]
-        print('Computing solution:')
         self.sol = integrate(Cahn_Hilliard, c0, t, dx, self.D, self.a)
     
     def set_step(self, step: int):
@@ -328,7 +329,6 @@ class Sol_CahnHilliard:
 
         ft_sol = np.zeros((len(sect), len(self.sol[0])))
 
-        print('Computing FT:')
         with tqdm(total=len(sect)) as pbar:
             for i in range(0, len(sect)):
                 hat = np.fft.fft(sect[i] - np.mean(sect[i]))
@@ -345,7 +345,7 @@ class Sol_CahnHilliard:
         N = len(self.sol[0])
         Nt = len(self.sol)
         histo = []
-        print('Computing histogram:')
+
         with tqdm(total=Nt//self.step) as pbar:
             for i in range(0, Nt, self.step):
                 conc_array = np.reshape(self.sol[i], (N**2))
