@@ -131,7 +131,7 @@ def test_compute_sol_bounded():
     D = dx**2 * 3 # diffusivity cm**2 / s
     gamma = 500
     beta = N / dx / gamma # in this way lmax is 2*pi * L/gamma
-    a = dx**4 * beta**2 # fatstest growing wavevector is 1/sqrt(a)
+    a = dx**4 * beta**2 # fastest growing wavevector is 1/sqrt(a)
 
     amp = 0.01
     c0 = c0 + amp * np.random.randn(N, N) # initial concentration
@@ -149,3 +149,39 @@ def test_compute_sol_bounded():
     # THEN
     np.testing.assert_(np.all(sol_cahn_hilliard.sol >= -1) and np.all(sol_cahn_hilliard.sol <= 1),
                        "Resulting values are not bounded between -1 and 1.")
+    
+def test_compute_sol_average_conc():
+    """
+    GIVEN A spatial NxN grid,
+    WHEN computing the solution with a random initial concentration field with normal distribution with std `amp`,
+    THEN the average concentration is constant in time within 4*amp / N.
+    """
+    # Parameters
+    L = 40 # side length of domain
+    N = 400 # number of points per spatial dimension
+    dx = L / N # spatial step along x and y
+    
+    mean = 0.0 # average concentration
+    c0 = np.zeros((N, N)) + mean
+
+    D = dx**2 * 3 # diffusivity cm**2 / s
+    gamma = 500
+    beta = N / dx / gamma # in this way lmax is 2*pi * L/gamma
+    a = dx**4 * beta**2 # fastest growing wavevector is 1/sqrt(a)
+
+    amp = 0.01
+    c0 = c0 + amp * np.random.randn(N, N) # initial concentration
+
+    tmax = 4.5
+    Nt = 500
+    t = np.linspace(0, tmax, Nt)
+
+    # GIVEN
+    sol_cahn_hilliard = Sol_CahnHilliard(L, N, D, a)
+
+    # WHEN
+    sol_cahn_hilliard.compute_sol(c0, t)
+
+    # THEN
+    np.testing.assert_almost_equal(np.average(sol_cahn_hilliard.sol.reshape(Nt, N**2), axis=1), np.ones(Nt) * mean, 4*amp/N,
+                       "Average concentratioin is not constant.")
