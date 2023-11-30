@@ -8,13 +8,6 @@ SMALL_SIZE = 11
 MEDIUM_SIZE = 14
 BIGGER_SIZE = 20
 
-plt.rc('font', size=MEDIUM_SIZE)          # controls default text sizes
-plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
-plt.rc('axes', labelsize=SMALL_SIZE)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
-
 base_font = {'family': 'serif',
         'color':  'black',
         'size': SMALL_SIZE,
@@ -30,6 +23,14 @@ title_figure = {'family': 'serif',
         'size': BIGGER_SIZE,
         'weight' : 'bold'
         }
+
+def init_plotting():
+    plt.rc('font', size=MEDIUM_SIZE)          # controls default text sizes
+    plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
+    plt.rc('axes', labelsize=SMALL_SIZE)    # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+    plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 
 LAP2 = np.array(
     [[0, 1, 0],
@@ -329,13 +330,10 @@ class Sol_CahnHilliard:
 
         ft_sol = np.zeros((len(sect), len(self.sol[0])))
 
-        with tqdm(total=len(sect)) as pbar:
-            for i in range(0, len(sect)):
-                hat = np.fft.fft(sect[i] - np.mean(sect[i]))
-                psd = np.sqrt(np.real(np.conj(hat) * hat))
-                ft_sol[i] = psd
-                pbar.update(1)
-            pbar.close()
+        for i in range(0, len(sect)):
+            hat = np.fft.fft(sect[i] - np.mean(sect[i]))
+            psd = np.sqrt(np.real(np.conj(hat) * hat))
+            ft_sol[i] = psd
         self.ft_sol = ft_sol / (ft_sol[0] + 0.000001)
     
     def Compute_histo(self):
@@ -346,12 +344,9 @@ class Sol_CahnHilliard:
         Nt = len(self.sol)
         histo = []
 
-        with tqdm(total=Nt//self.step) as pbar:
-            for i in range(0, Nt, self.step):
-                conc_array = np.reshape(self.sol[i], (N**2))
-                histo.append(np.histogram(conc_array, N))
-                pbar.update(1)
-            pbar.close()
+        for i in range(0, Nt, self.step):
+            conc_array = np.reshape(self.sol[i], (N**2))
+            histo.append(np.histogram(conc_array, N))
         self.histo = histo
         
     def MakeGif_sol(self, file_name = 'cahn_hilliard.gif'):
@@ -394,7 +389,7 @@ class Sol_CahnHilliard:
 
         tmax = self.t[-1]
         ani = FuncAnimation(fig, update, frames = len(sol_to_plot)-1)
-        ani.save(file_name, writer='pillow', fps= len(sol_to_plot)/tmax)
+        ani.save(file_name, writer='pillow', fps= 10)
         
     def MakeGif_FT(self, file_name = 'ft_vs_time.gif'):
         """
@@ -406,16 +401,17 @@ class Sol_CahnHilliard:
             Name of the output GIF file.
         """
         N = len(self.x)
+        dx = self.x[1] - self.x[0]
+        
         k = np.fft.fftfreq(N, dx) * 2*np.pi
-        indexes = np.arange(0, len(self.ft_sol))
-        index_max = indexes[self.k < 1/np.sqrt(self.a)]
+        
+        n_steps = len(self.ft_sol)
+        index_max = np.argmax(self.ft_sol[int(n_steps/10), :N//2])
         ft_max = self.ft_sol[:, index_max]
 
         fig, ax = plt.subplots(1, 2, figsize=(14, 5))
         ax[0].set_ylim(0, np.max(self.ft_sol[:])+0.5)
         ax[1].set_ylim(0, np.max(ft_max)+0.5)
-
-        dx = self.x[1] - self.x[0]
 
         ln1, = ax[0].plot(k[:N//2], self.ft_sol[0][:N//2])
         ln2, = ax[0].plot([k[index_max]], [ft_max[0]], 'o', ms=5, color='black')
@@ -442,7 +438,7 @@ class Sol_CahnHilliard:
 
         tmax = self.t[-1]
         ani = FuncAnimation(fig, update, frames = len(self.ft_sol)-1)
-        ani.save(file_name, writer='pillow', fps= len(self.ft_sol)/tmax)
+        ani.save(file_name, writer='pillow', fps= 10)
         
     def MakeGif_tot(self, file_name = 'cahn_hilliard_tot.gif'):
         """
@@ -511,4 +507,4 @@ class Sol_CahnHilliard:
 
         tmax = self.t[-1]
         ani = FuncAnimation(fig, update, frames = len(sol_to_plot)-1)
-        ani.save(file_name, writer='pillow', fps= len(sol_to_plot)/tmax)
+        ani.save(file_name, writer='pillow', fps= 10)
