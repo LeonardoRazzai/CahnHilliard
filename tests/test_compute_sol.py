@@ -1,7 +1,8 @@
+import numpy as np
 import sys
 sys.path.append('./')
 sys.path.append('../')
-from CahnHilliard import *
+from CahnHilliard import Sol_CahnHilliard
 
 # set seed for random values
 np.random.seed(42)
