@@ -263,7 +263,7 @@ class Sol_CahnHilliard:
         Create a GIF animation of concentration field, Fourier components and histogram over time.
     """
     
-    def __init__(self, L, N, D, a) -> None:
+    def __init__(self, L: float, N: int, D: float, a: float) -> None:
 
         """
         Initialize a Sol_CahnHilliard instance with specified parameters.
@@ -323,31 +323,37 @@ class Sol_CahnHilliard:
         Compute the average Fourier transform of concentration profiles along x and y
         at times specified by self.step.
         """
-        self.ft_t = self.t[0:-1:self.step]
-        sect_x = np.mean(self.sol, axis=1)
-        sect_y = np.mean(self.sol, axis=2)
-        sect = (sect_x[0:-1:self.step] + sect_y[0:-1:self.step])/2
+        if self.sol is None:
+            print("Error: you didn't compute the solution. Run the method compute_sol.")
+        else:
+            self.ft_t = self.t[0:-1:self.step]
+            sect_x = np.mean(self.sol, axis=1)
+            sect_y = np.mean(self.sol, axis=2)
+            sect = (sect_x[0:-1:self.step] + sect_y[0:-1:self.step])/2
 
-        ft_sol = np.zeros((len(sect), len(self.sol[0])))
+            ft_sol = np.zeros((len(sect), len(self.sol[0])))
 
-        for i in range(0, len(sect)):
-            hat = np.fft.fft(sect[i] - np.mean(sect[i]))
-            psd = np.sqrt(np.real(np.conj(hat) * hat))
-            ft_sol[i] = psd
-        self.ft_sol = ft_sol / (ft_sol[0] + 0.000001)
+            for i in range(0, len(sect)):
+                hat = np.fft.fft(sect[i] - np.mean(sect[i]))
+                psd = np.sqrt(np.real(np.conj(hat) * hat))
+                ft_sol[i] = psd
+            self.ft_sol = ft_sol / (ft_sol[0] + 0.000001)
     
     def Compute_histo(self):
         """
         Compute histograms of concentration at times specified by self.step.
         """
-        N = len(self.sol[0])
-        Nt = len(self.sol)
-        histo = []
+        if self.sol is None:
+            print("Error: you didn't compute the solution. Run the method compute_sol.")
+        else:
+            N = len(self.sol[0])
+            Nt = len(self.sol)
+            histo = []
 
-        for i in range(0, Nt, self.step):
-            conc_array = np.reshape(self.sol[i], (N**2))
-            histo.append(np.histogram(conc_array, N))
-        self.histo = histo
+            for i in range(0, Nt, self.step):
+                conc_array = np.reshape(self.sol[i], (N**2))
+                histo.append(np.histogram(conc_array, N))
+            self.histo = histo
         
     def MakeGif_sol(self, file_name = 'cahn_hilliard.gif'):
         """
@@ -358,39 +364,42 @@ class Sol_CahnHilliard:
         file_name : str, optional
             Name of the output GIF file.
         """
-        N = len(self.x)
-        Nt = len(self.sol)
-        sol_to_plot = self.sol[0:Nt:self.step]
-        t_to_plot = self.t[0:Nt:self.step]
-        
-        fig, ax = plt.subplots(1, 2, figsize=(14, 6))
+        if self.sol is None:
+            print("Error: you didn't compute the solution. Run the method compute_sol.")
+        else:
+            N = len(self.x)
+            Nt = len(self.sol)
+            sol_to_plot = self.sol[0:Nt:self.step]
+            t_to_plot = self.t[0:Nt:self.step]
+            
+            fig, ax = plt.subplots(1, 2, figsize=(14, 6))
 
-        ax[0].plot([0, 400], [200, 200], color = 'darkorchid')
-        img = ax[0].imshow(sol_to_plot[0], cmap='inferno')
-        ax[0].set_title(f'Concentration in x-y plane', fontdict=title_font)
+            ax[0].plot([0, 400], [200, 200], color = 'darkorchid')
+            img = ax[0].imshow(sol_to_plot[0], cmap='inferno')
+            ax[0].set_title(f'Concentration in x-y plane', fontdict=title_font)
 
-        ln2, = ax[1].plot(self.x, sol_to_plot[0][N//2], color='darkorchid')
-        ax[1].plot([np.min(self.x), np.max(self.x)], [1/np.sqrt(3), 1/np.sqrt(3)], '--', color='black', label='Spinodal')
-        ax[1].plot([np.min(self.x), np.max(self.x)], [-1/np.sqrt(3), -1/np.sqrt(3)], '--', color='black')
-        ax[1].set_title('Concentration at y=0', fontdict=title_font)
-        ax[1].set_ylabel('Conc', fontdict=base_font)
-        ax[1].set_xlabel('x (cm)', fontdict=base_font)
-        ax[1].set_ylim(-1, 1)
-        ax[1].set_xlim(self.x[0], self.x[-1])
-        ax[1].legend(loc='upper left')
+            ln2, = ax[1].plot(self.x, sol_to_plot[0][N//2], color='darkorchid')
+            ax[1].plot([np.min(self.x), np.max(self.x)], [1/np.sqrt(3), 1/np.sqrt(3)], '--', color='black', label='Spinodal')
+            ax[1].plot([np.min(self.x), np.max(self.x)], [-1/np.sqrt(3), -1/np.sqrt(3)], '--', color='black')
+            ax[1].set_title('Concentration at y=0', fontdict=title_font)
+            ax[1].set_ylabel('Conc', fontdict=base_font)
+            ax[1].set_xlabel('x (cm)', fontdict=base_font)
+            ax[1].set_ylim(-1, 1)
+            ax[1].set_xlim(self.x[0], self.x[-1])
+            ax[1].legend(loc='upper left')
 
-        fig.suptitle('Time evolution Fourier components, t = 0.0 s', fontdict=title_figure)
+            fig.suptitle('Time evolution Fourier components, t = 0.0 s', fontdict=title_figure)
 
-        def update(i):
-            img.set_data(sol_to_plot[i])
-            ln2.set_data(self.x, sol_to_plot[i][N//2])
-            fig.suptitle(f'Time evolution Fourier components, t = {t_to_plot[i]:.1f} s', fontdict=title_figure)
+            def update(i):
+                img.set_data(sol_to_plot[i])
+                ln2.set_data(self.x, sol_to_plot[i][N//2])
+                fig.suptitle(f'Time evolution Fourier components, t = {t_to_plot[i]:.1f} s', fontdict=title_figure)
 
 
-        tmax = self.t[-1]
-        ani = FuncAnimation(fig, update, frames = len(sol_to_plot)-1)
-        ani.save(file_name, writer='pillow', fps= 10)
-        
+            tmax = self.t[-1]
+            ani = FuncAnimation(fig, update, frames = len(sol_to_plot)-1)
+            ani.save(file_name, writer='pillow', fps= 10)
+            
     def MakeGif_FT(self, file_name = 'ft_vs_time.gif'):
         """
         Create a GIF animation of Fourier components over time.
@@ -400,45 +409,48 @@ class Sol_CahnHilliard:
         file_name : str, optional
             Name of the output GIF file.
         """
-        N = len(self.x)
-        dx = self.x[1] - self.x[0]
-        
-        k = np.fft.fftfreq(N, dx) * 2*np.pi
-        
-        n_steps = len(self.ft_sol)
-        index_max = np.argmax(self.ft_sol[int(n_steps/10), :N//2])
-        ft_max = self.ft_sol[:, index_max]
+        if self.ft_sol is None:
+            print("Error: you didn't compute the fourier transform. Run the method Compute_FT.")
+        else:
+            N = len(self.x)
+            dx = self.x[1] - self.x[0]
+            
+            k = np.fft.fftfreq(N, dx) * 2*np.pi
+            
+            n_steps = len(self.ft_sol)
+            index_max = np.argmax(self.ft_sol[int(n_steps/10), :N//2])
+            ft_max = self.ft_sol[:, index_max]
 
-        fig, ax = plt.subplots(1, 2, figsize=(14, 5))
-        ax[0].set_ylim(0, np.max(self.ft_sol[:])+0.5)
-        ax[1].set_ylim(0, np.max(ft_max)+0.5)
+            fig, ax = plt.subplots(1, 2, figsize=(14, 5))
+            ax[0].set_ylim(0, np.max(self.ft_sol[:])+0.5)
+            ax[1].set_ylim(0, np.max(ft_max)+0.5)
 
-        ln1, = ax[0].plot(k[:N//2], self.ft_sol[0][:N//2])
-        ln2, = ax[0].plot([k[index_max]], [ft_max[0]], 'o', ms=5, color='black')
+            ln1, = ax[0].plot(k[:N//2], self.ft_sol[0][:N//2])
+            ln2, = ax[0].plot([k[index_max]], [ft_max[0]], 'o', ms=5, color='black')
 
-        ax[0].axvline(1/(np.sqrt(self.a)), ls='--',color='red', label='Critical line\n'+r'1/$\sqrt{a}$')
-        ax[0].set_xlabel('k', fontdict=base_font)
-        ax[0].set_ylabel('A(k, t)/A(k, 0)', fontdict=base_font)
-        ax[0].set_title('Fourier spectrum', fontdict=title_font)
-        ax[0].legend()
-        
-        ax[1].plot(self.ft_t, ft_max)
-        ln3, = ax[1].plot([self.t[0]], [ft_max[0]], 'o', ms=5, color='black')
-        ax[1].set_xlabel('t (s)', fontdict=base_font)
-        ax[1].set_ylabel(f'Component k = {k[index_max]:.1f}', fontdict=base_font)
-        ax[1].set_title('Fastest growing Fourier component', fontdict=title_font)
+            ax[0].axvline(1/(np.sqrt(self.a)), ls='--',color='red', label='Critical line\n'+r'1/$\sqrt{a}$')
+            ax[0].set_xlabel('k', fontdict=base_font)
+            ax[0].set_ylabel('A(k, t)/A(k, 0)', fontdict=base_font)
+            ax[0].set_title('Fourier spectrum', fontdict=title_font)
+            ax[0].legend()
+            
+            ax[1].plot(self.ft_t, ft_max)
+            ln3, = ax[1].plot([self.t[0]], [ft_max[0]], 'o', ms=5, color='black')
+            ax[1].set_xlabel('t (s)', fontdict=base_font)
+            ax[1].set_ylabel(f'Component k = {k[index_max]:.1f}', fontdict=base_font)
+            ax[1].set_title('Fastest growing Fourier component', fontdict=title_font)
 
-        fig.suptitle('Time evolution Fourier components, t = 0.0 s', fontdict=title_figure)
+            fig.suptitle('Time evolution Fourier components, t = 0.0 s', fontdict=title_figure)
 
-        def update(i):
-            ln1.set_data(k[:N//2], self.ft_sol[i][:N//2])
-            ln2.set_data([k[index_max]], [ft_max[i]])
-            ln3.set_data([self.ft_t[i]], [ft_max[i]])
-            fig.suptitle(f'Time evolution Fourier components, t = {self.ft_t[i]:.1f} s', fontdict=title_figure)
+            def update(i):
+                ln1.set_data(k[:N//2], self.ft_sol[i][:N//2])
+                ln2.set_data([k[index_max]], [ft_max[i]])
+                ln3.set_data([self.ft_t[i]], [ft_max[i]])
+                fig.suptitle(f'Time evolution Fourier components, t = {self.ft_t[i]:.1f} s', fontdict=title_figure)
 
-        tmax = self.t[-1]
-        ani = FuncAnimation(fig, update, frames = len(self.ft_sol)-1)
-        ani.save(file_name, writer='pillow', fps= 10)
+            tmax = self.t[-1]
+            ani = FuncAnimation(fig, update, frames = len(self.ft_sol)-1)
+            ani.save(file_name, writer='pillow', fps= 10)
         
     def MakeGif_tot(self, file_name = 'cahn_hilliard_tot.gif'):
         """
@@ -449,62 +461,67 @@ class Sol_CahnHilliard:
         file_name : str, optional
             Name of the output GIF file.
         """
-        N = len(self.x)
-        Nt = len(self.sol)
-        sol_to_plot = self.sol[0:Nt:self.step]
-        sol_to_plot.shape
+        if self.ft_sol is None:
+            print("Error: you didn't compute the fourier transform. Run the method Compute_FT.")
+        elif self.histo is None:
+            print("Error: you didn't compute the histogram. Run the method compute_histo.")
+        else:
+            N = len(self.x)
+            Nt = len(self.sol)
+            sol_to_plot = self.sol[0:Nt:self.step]
+            sol_to_plot.shape
 
-        fig = plt.figure(figsize=(15, 7))
-        grid = plt.GridSpec(4, 4, hspace=0.8, wspace=0.3)
+            fig = plt.figure(figsize=(15, 7))
+            grid = plt.GridSpec(4, 4, hspace=0.8, wspace=0.3)
 
-        # image
-        img_ax = fig.add_subplot(grid[:, :2])
-        img_ax.set_xticks([])
-        img_ax.set_yticks([])
-        img = img_ax.imshow(sol_to_plot[0], cmap='inferno')
-        img_ax.set_title(f'Concentration in x-y plane', fontdict=title_font)
+            # image
+            img_ax = fig.add_subplot(grid[:, :2])
+            img_ax.set_xticks([])
+            img_ax.set_yticks([])
+            img = img_ax.imshow(sol_to_plot[0], cmap='inferno')
+            img_ax.set_title(f'Concentration in x-y plane', fontdict=title_font)
 
-        # conc_x
-        concx_ax = fig.add_subplot(grid[:2, 2:])
-        histo = self.histo[0]
-        bins = histo[1]
-        counts = histo[0]
-        ln1, = concx_ax.plot(bins[:-1], counts / np.max(counts), color='darkorchid')
-        concx_ax.axvline(1/np.sqrt(3), ls='--', color='black', label='Spinodal')
-        concx_ax.axvline(-1/np.sqrt(3), ls='--', color='black')
-        concx_ax.set_title('Concentration distribution', fontdict=title_font)
-        concx_ax.set_ylabel('counts', fontdict=base_font)
-        concx_ax.set_xlabel('Conc', fontdict=base_font)
-        concx_ax.set_xlim(-1.2, 1.2)
-        concx_ax.set_ylim(0.05, 1.1)
-        concx_ax.legend(loc='upper left')
-
-        # ft_conc_x
-        ft_concx_ax = fig.add_subplot(grid[2:, 2:])
-        ft_concx_ax.set_ylim(0, np.max(self.ft_sol[:])+1)
-
-        dx = self.x[1] - self.x[0]
-        k = np.fft.fftfreq(N, dx) * 2*np.pi
-
-        ft_ln1, = ft_concx_ax.plot(k[:N//2], self.ft_sol[0][:N//2])
-
-        ft_concx_ax.axvline(1/(np.sqrt(self.a)), ls='--',color='red', label='Critical line\n'+r'1/$\sqrt{a}$')
-        ft_concx_ax.set_xlabel(r'k (cm$^{-1}$)', fontdict=base_font)
-        ft_concx_ax.set_ylabel('A(k, t)/A(k, 0)', fontdict=base_font)
-        ft_concx_ax.set_title('FT of concentration profile', fontdict=title_font)
-        ft_concx_ax.legend()
-
-        fig.suptitle('Time evolution of concentration, t = 0.0 s', fontdict=title_figure)
-
-        def update(i):
-            img.set_data(sol_to_plot[i])
-            histo = self.histo[i]
+            # conc_x
+            concx_ax = fig.add_subplot(grid[:2, 2:])
+            histo = self.histo[0]
             bins = histo[1]
             counts = histo[0]
-            ln1.set_data(bins[:-1], counts / np.max(counts))
-            ft_ln1.set_data(k[:N//2], self.ft_sol[i][:N//2])
-            fig.suptitle(f'Time evolution of concentration, t = {self.ft_t[i]:.1f} s', fontdict=title_figure)
+            ln1, = concx_ax.plot(bins[:-1], counts / np.max(counts), color='darkorchid')
+            concx_ax.axvline(1/np.sqrt(3), ls='--', color='black', label='Spinodal')
+            concx_ax.axvline(-1/np.sqrt(3), ls='--', color='black')
+            concx_ax.set_title('Concentration distribution', fontdict=title_font)
+            concx_ax.set_ylabel('counts', fontdict=base_font)
+            concx_ax.set_xlabel('Conc', fontdict=base_font)
+            concx_ax.set_xlim(-1.2, 1.2)
+            concx_ax.set_ylim(0.05, 1.1)
+            concx_ax.legend(loc='upper left')
 
-        tmax = self.t[-1]
-        ani = FuncAnimation(fig, update, frames = len(sol_to_plot)-1)
-        ani.save(file_name, writer='pillow', fps= 10)
+            # ft_conc_x
+            ft_concx_ax = fig.add_subplot(grid[2:, 2:])
+            ft_concx_ax.set_ylim(0, np.max(self.ft_sol[:])+1)
+
+            dx = self.x[1] - self.x[0]
+            k = np.fft.fftfreq(N, dx) * 2*np.pi
+
+            ft_ln1, = ft_concx_ax.plot(k[:N//2], self.ft_sol[0][:N//2])
+
+            ft_concx_ax.axvline(1/(np.sqrt(self.a)), ls='--',color='red', label='Critical line\n'+r'1/$\sqrt{a}$')
+            ft_concx_ax.set_xlabel(r'k (cm$^{-1}$)', fontdict=base_font)
+            ft_concx_ax.set_ylabel('A(k, t)/A(k, 0)', fontdict=base_font)
+            ft_concx_ax.set_title('FT of concentration profile', fontdict=title_font)
+            ft_concx_ax.legend()
+
+            fig.suptitle('Time evolution of concentration, t = 0.0 s', fontdict=title_figure)
+
+            def update(i):
+                img.set_data(sol_to_plot[i])
+                histo = self.histo[i]
+                bins = histo[1]
+                counts = histo[0]
+                ln1.set_data(bins[:-1], counts / np.max(counts))
+                ft_ln1.set_data(k[:N//2], self.ft_sol[i][:N//2])
+                fig.suptitle(f'Time evolution of concentration, t = {self.ft_t[i]:.1f} s', fontdict=title_figure)
+
+            tmax = self.t[-1]
+            ani = FuncAnimation(fig, update, frames = len(sol_to_plot)-1)
+            ani.save(file_name, writer='pillow', fps= 10)
