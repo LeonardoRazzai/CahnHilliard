@@ -104,3 +104,33 @@ def test_None_MakeGif():
         sol_solver.MakeGif_tot()
     except:
         print("Error during execution of MakeGif")
+
+def test_idempot():
+    
+    """
+    GIVEN Sol_CahnHilliard instance
+    WHEN calling compute_histo twice
+    THEN the result is the same.
+    """
+        # Define test parameters
+    L = 10.0
+    N = 100
+    D = 0.0  # diffusion coefficient
+    a = 0.001  # interfacial parameter
+    t = np.linspace(0.0, 1.0, 10)
+
+    # GIVEN
+    sol_solver = Sol_CahnHilliard(L, N, D, a)
+    c0 = np.random.rand(N, N)
+    sol_solver.compute_sol(c0, t)
+
+    # WHEN
+    sol_solver.Compute_histo()
+    first_histo = sol_solver.histo
+    sol_solver.Compute_histo()
+    second_histo = sol_solver.histo
+    
+    np.testing.assert_equal(first_histo, second_histo)
+    
+    
+    

@@ -143,4 +143,29 @@ def test_None_MakeGif():
         print("Error during execution of MakeGif")
     
     
+def test_idempot():
     
+    """
+    GIVEN Sol_CahnHilliard instance
+    WHEN calling computeFT twice
+    THEN the result is the same.
+    """
+        # Define test parameters
+    L = 10.0
+    N = 100
+    D = 0.0  # diffusion coefficient
+    a = 0.001  # interfacial parameter
+    t = np.linspace(0.0, 1.0, 10)
+
+    # GIVEN
+    sol_solver = Sol_CahnHilliard(L, N, D, a)
+    c0 = np.random.rand(N, N)
+    sol_solver.compute_sol(c0, t)
+
+    # WHEN
+    sol_solver.ComputeFT()
+    first_ft = sol_solver.ft_sol
+    sol_solver.ComputeFT()
+    second_ft = sol_solver.ft_sol
+    
+    np.testing.assert_equal(first_ft, second_ft)
