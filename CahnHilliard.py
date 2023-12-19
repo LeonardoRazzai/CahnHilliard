@@ -103,9 +103,8 @@ def Cahn_Hilliard(u, t: float, dx: float, D: float, a: float):
     Returns:
     -------
     np.ndarray
-        A 2D NumPy array representing the updated concentration field 'u' at
-        the next time step 't+dt', where 'dt' is determined by the numerical
-        scheme used.
+        A 2D NumPy array representing the time derivative concentration field 'u' at
+        the current time step 't'.
 
     Notes:
     ------
@@ -127,7 +126,7 @@ def Cahn_Hilliard(u, t: float, dx: float, D: float, a: float):
     >>> dx = 0.1
     >>> D = 0.1
     >>> a = 1.0
-    >>> updated_concentration = Cahn_Hilliard(initial_concentration, t, dx, D, a)
+    >>> dudt = Cahn_Hilliard(initial_concentration, t, dx, D, a)
     """
     return (D / dx**2) * laplacian2(np.power(u, 3) - u - (a / dx**2) * laplacian2(u))
   

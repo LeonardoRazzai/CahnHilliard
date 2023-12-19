@@ -26,7 +26,7 @@ handling boundary pixels.
 
 ### 2. `Cahn_Hilliard`
 
-Calculate the Cahn-Hilliard equation for phase separation in a 2D system.
+Calculate the time derivative of concentration field `u` at a given timestep `t` according to Cahn-Hilliard equation for phase separation in a 2D system.
 
 #### Parameters
 
@@ -38,7 +38,7 @@ Calculate the Cahn-Hilliard equation for phase separation in a 2D system.
 
 #### Returns
 
-- `np.ndarray`: A 2D NumPy array representing the updated concentration field `u` at the next time step `t+dt,` where `dt` is determined by the numerical scheme used.
+- `np.ndarray`: A 2D NumPy array representing the time derivative concentration field `u` at the current time step `t`.
 
 #### Notes
 
@@ -59,7 +59,7 @@ The function calculates the right-hand side of the equation for the given concen
 >>> dx = 0.1
 >>> D = 0.1
 >>> a = 1.0
->>> updated_concentration = Cahn_Hilliard(initial_concentration, t, dx, D, a)
+>>> dudt = Cahn_Hilliard(initial_concentration, t, dx, D, a)
 ```
 
 ### 3. `integrate`
