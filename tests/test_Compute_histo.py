@@ -3,7 +3,7 @@ import sys
 sys.path.append('./')
 sys.path.append('../')
 from CahnHilliard import Sol_CahnHilliard
-
+import pytest
 
 def test_shape():
     """
@@ -84,10 +84,8 @@ def test_None():
     # Create a Sol_CahnHilliard instance
     sol_solver = Sol_CahnHilliard(L, N, D, a)
     
-    try:
+    with pytest.raises(TypeError):
         sol_solver.Compute_histo()
-    except TypeError:
-        assert True
         
 def test_None_MakeGif():
     """
@@ -105,10 +103,8 @@ def test_None_MakeGif():
     # Create a Sol_CahnHilliard instance
     sol_solver = Sol_CahnHilliard(L, N, D, a)
     
-    try:
+    with pytest.raises(TypeError):
         sol_solver.MakeGif_tot()
-    except TypeError:
-        assert True
 
 def test_idempot():
     
