@@ -12,6 +12,9 @@ def test_shape():
     THEN ft_sol and ft_t are computed and not None
     AND ft_sol and ft_t have the same length as expected (len(t) // step).
     """
+    # set seed for random number generators
+    np.random.seed(42)
+    
     # Define test parameters
     L = 10.0
     N = 100
@@ -48,6 +51,9 @@ def test_zero_diffusivity():
     WHEN computing FTs with ComputeFT
     THEN initial FT is equal to final FT.
     """
+    # set seed for random number generators
+    np.random.seed(42)
+    
     # Define test parameters
     L = 10.0
     N = 100
@@ -150,7 +156,10 @@ def test_idempot():
     WHEN calling computeFT twice
     THEN the result is the same.
     """
-        # Define test parameters
+    # set seed for random number generators
+    np.random.seed(42)
+    
+    # Define test parameters
     L = 10.0
     N = 100
     D = 0.0  # diffusion coefficient

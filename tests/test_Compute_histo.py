@@ -4,7 +4,6 @@ sys.path.append('./')
 sys.path.append('../')
 from CahnHilliard import Sol_CahnHilliard
 
-np.random.seed(42)
 
 def test_shape():
     """
@@ -13,6 +12,9 @@ def test_shape():
     THEN the computed histogram is not None
     AND the length of histogram is equal to the expected length (len(t) // step).
     """
+    # set seed for random number generators
+    np.random.seed(42)
+    
     # Define test parameters
     L = 10.0
     N = 100
@@ -41,6 +43,9 @@ def test_zero_diffusivity():
     WHEN computing the histograms of concentration values at each time
     THEN the initial histogram is equal to the final histogram.
     """
+    # set seed for random number generators
+    np.random.seed(42)
+    
     # Define test parameters
     L = 10.0
     N = 100
@@ -112,7 +117,11 @@ def test_idempot():
     WHEN calling compute_histo twice
     THEN the result is the same.
     """
-        # Define test parameters
+    
+    # set seed for random number generators
+    np.random.seed(42)
+    
+    # Define test parameters
     L = 10.0
     N = 100
     D = 0.0  # diffusion coefficient

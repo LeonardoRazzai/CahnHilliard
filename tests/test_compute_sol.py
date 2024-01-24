@@ -4,15 +4,14 @@ sys.path.append('./')
 sys.path.append('../')
 from CahnHilliard import Sol_CahnHilliard
 
-# set seed for random values
-np.random.seed(42)
-
 def test_result_shape():
     """
     GIVEN a Sol_CahnHilliard instance with NxN spatial grid
     WHEN computing the solution with a random initial concentration field and time array
     THEN the shape of the computed solution matches the expected shape (len(t), N, N).
     """
+    # set seed for random number generators
+    np.random.seed(42)
 
     # Define test parameters
     L = 10.0
@@ -40,6 +39,8 @@ def test_initial_concentration():
     WHEN computing the solution with a random initial concentration field
     THEN the initial concentration field matches the concentration at the first time step.
     """
+    # set seed for random number generators
+    np.random.seed(42)
 
     # Define test parameters
     L = 10.0
@@ -67,7 +68,9 @@ def test_constant_concentration():
     WHEN computing the solution with an initial constant concentration field
     THEN the concentration at the final time step matches the initial constant concentration field.
     """
-
+    # set seed for random number generators
+    np.random.seed(42)
+    
     # Define test parameters
     L = 10.0
     N = 100
@@ -94,7 +97,9 @@ def test_zero_diffusivity():
     WHEN computing the solution with a random initial concentration field
     THEN the concentration at the final time step matches the initial concentration field.
     """
-
+    # set seed for random number generators
+    np.random.seed(42)
+    
     # Define test parameters
     L = 10.0
     N = 100
@@ -121,6 +126,9 @@ def test_compute_sol_bounded():
     WHEN computing the solution with a random initial concentration field,
     THEN the solution concentration field is bounded between -1 and 1 at any time.
     """
+    # set seed for random number generators
+    np.random.seed(42)
+    
     # Parameters
     L = 40 
     N = 400
@@ -152,6 +160,9 @@ def test_compute_sol_average_conc():
     WHEN computing the solution with a random initial concentration field with normal distribution with std `amp`,
     THEN the average concentration is constant in time within 4*amp / N.
     """
+    # set seed for random number generators
+    np.random.seed(42)
+    
     # Parameters
     L = 40 
     N = 400
@@ -184,7 +195,10 @@ def test_idempot():
     WHEN calling compute_sol twice with same initial condition
     THEN the result is the same.
     """
-        # Define test parameters
+    # set seed for random number generators
+    np.random.seed(42)
+    
+    # Define test parameters
     L = 10.0
     N = 100
     D = 0.0  # diffusion coefficient
