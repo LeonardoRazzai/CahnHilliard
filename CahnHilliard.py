@@ -323,7 +323,7 @@ class Sol_CahnHilliard:
         at times specified by self.step.
         """
         if self.sol is None:
-            print("Error: you didn't compute the solution. Run the method compute_sol.")
+            raise TypeError("Error: you didn't compute the solution. Run the method compute_sol.")
         else:
             self.ft_t = self.t[0:-1:self.step]
             sect_x = np.mean(self.sol, axis=1)
@@ -343,7 +343,7 @@ class Sol_CahnHilliard:
         Compute histograms of concentration at times specified by self.step.
         """
         if self.sol is None:
-            print("Error: you didn't compute the solution. Run the method compute_sol.")
+            raise TypeError("Error: you didn't compute the solution. Run the method compute_sol.")
         else:
             N = len(self.sol[0])
             Nt = len(self.sol)
@@ -364,7 +364,7 @@ class Sol_CahnHilliard:
             Name of the output GIF file.
         """
         if self.sol is None:
-            print("Error: you didn't compute the solution. Run the method compute_sol.")
+            raise TypeError("Error: you didn't compute the solution. Run the method compute_sol.")
         else:
             N = len(self.x)
             Nt = len(self.sol)
@@ -409,7 +409,7 @@ class Sol_CahnHilliard:
             Name of the output GIF file.
         """
         if self.ft_sol is None:
-            print("Error: you didn't compute the fourier transform. Run the method Compute_FT.")
+            raise TypeError("Error: you didn't compute the fourier transform. Run the method Compute_FT.")
         else:
             N = len(self.x)
             dx = self.x[1] - self.x[0]
@@ -461,9 +461,9 @@ class Sol_CahnHilliard:
             Name of the output GIF file.
         """
         if self.ft_sol is None:
-            print("Error: you didn't compute the fourier transform. Run the method Compute_FT.")
+            raise TypeError("Error: you didn't compute the fourier transform. Run the method Compute_FT.")
         elif self.histo is None:
-            print("Error: you didn't compute the histogram. Run the method compute_histo.")
+            raise TypeError("Error: you didn't compute the histogram. Run the method compute_histo.")
         else:
             N = len(self.x)
             Nt = len(self.sol)

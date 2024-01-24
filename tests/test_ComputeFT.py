@@ -105,12 +105,12 @@ def test_constant_concentration():
     
     # Check if the FTs are all zeros
     assert np.all(sol_solver.ft_sol == 0)
-    
+
 def test_None_ComputeFT():
     """
     GIVEN Sol_CahnHilliard instance
     WHEN calling ComputeFT wihtout having computed a solution
-    THEN no error occurs.
+    THEN a TypeError is raised.
     """
     # Define test parameters
     L = 10.0
@@ -124,14 +124,14 @@ def test_None_ComputeFT():
     
     try:
         sol_solver.ComputeFT()
-    except:
-        print("Error during computation of FT")
+    except TypeError:
+        assert True
         
 def test_None_MakeGif():
     """
     GIVEN Sol_CahnHilliard instance
     WHEN calling MakeGif_FT wihtout having computed the FT
-    THEN no error occurs.
+    THEN a TypeError is raised.
     """
     # Define test parameters
     L = 10.0
@@ -145,9 +145,8 @@ def test_None_MakeGif():
     
     try:
         sol_solver.MakeGif_FT()
-    except:
-        print("Error during execution of MakeGif")
-    
+    except TypeError:
+        assert True
     
 def test_idempot():
     

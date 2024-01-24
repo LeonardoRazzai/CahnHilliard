@@ -72,7 +72,7 @@ def test_None():
     """
     GIVEN Sol_CahnHilliard instance
     WHEN calling Compute_histo wihtout having computed a solution
-    THEN no error occurs.
+    THEN a TypeError is raised.
     """
     # Define test parameters
     L = 10.0
@@ -86,14 +86,14 @@ def test_None():
     
     try:
         sol_solver.Compute_histo()
-    except:
-        print("Error during computation of histo")
+    except TypeError:
+        assert True
         
 def test_None_MakeGif():
     """
     GIVEN Sol_CahnHilliard instance
     WHEN calling MakeGif_tot wihtout having computed the histograms
-    THEN no error occurs.
+    THEN a TypeError is raised.
     """
     # Define test parameters
     L = 10.0
@@ -107,8 +107,8 @@ def test_None_MakeGif():
     
     try:
         sol_solver.MakeGif_tot()
-    except:
-        print("Error during execution of MakeGif")
+    except TypeError:
+        assert True
 
 def test_idempot():
     
